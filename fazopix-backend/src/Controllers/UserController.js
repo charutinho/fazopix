@@ -1,12 +1,21 @@
 const userRepository = require("../Repository/UserRepository");
 
 module.exports = {
-  async userCreate(req, res) {
-    // const response = { ...respondeModel };
-    // return res.json(response);
+  async createUser(req, res) {
+    try {
+      const { name, email, password } = req.body;
+      const user = await userRepository.createUser(name, email, password);
+      if (!user)
+        return res.status(409).json({ error: "E-mail already in use." });
+      return res.status(200).json({ user });
+    } catch (err) {
+      res.status(500).json({
+        error: "Internal server error.",
+      });
+    }
   },
 
-  async userLogin(req, res) {
+  async loginUser(req, res) {
     // const response = { ...respondeModel };
     // return res.json(response);
   },
@@ -18,7 +27,7 @@ module.exports = {
       if (user.length === 0) {
         return res.status(404).json({ message: "User not found" });
       }
-      return res.status(200).json(user);
+      return res.status(200).json(user[0]);
     } catch (err) {
       res.status(500).json({
         error: "Internal server error.",
