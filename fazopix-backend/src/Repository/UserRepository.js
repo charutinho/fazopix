@@ -31,6 +31,22 @@ class UserRepository {
     await connection.query(sql, values);
     return { name, email };
   }
+
+  async loginUser(email, password) {
+    const connection = await this.conn();
+
+    const [user] = await connection.query(`
+      SELECT id, name, password FROM user WHERE email = '${email}'; 
+    `);
+
+    if (user.length === 0) return { error: 404 };
+
+    const verify = bcrypt.compareSync(password, user[0].password);
+
+    if (!verify) return { error: 401 };
+
+    return user[0].name;
+  }
 }
 
 module.exports = new UserRepository(connect);
